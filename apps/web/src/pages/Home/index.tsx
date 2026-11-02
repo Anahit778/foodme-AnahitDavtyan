@@ -96,7 +96,7 @@ export default function Home() {
       )}
 
       {/* How it works */}
-      <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-14">
+      <section id="how-it-works" className="scroll-mt-[140px] md:scroll-mt-[84px] mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-14">
         <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900 md:text-3xl">
           Three steps to your next favourite meal
         </h2>
