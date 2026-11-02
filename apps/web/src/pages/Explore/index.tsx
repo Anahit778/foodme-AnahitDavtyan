@@ -42,17 +42,38 @@ export default function Explore() {
     ).sort();
   }, [data]);
 
+  const trimmedQuery = query.trim();
+
+  // KAN-7: also match chefs that serve a dish (or dish category) matching the query, e.g. "sushi".
+  const { data: dishMatches } = useQuery({
+    queryKey: ["dishes", "search", trimmedQuery.toLowerCase()],
+    queryFn: () => foodmeApi.searchDishes(trimmedQuery),
+    enabled: trimmedQuery.length > 0,
+  });
+
+  const chefIdsWithMatchingDishes = useMemo(
+    () => new Set((dishMatches?.dishDtoList ?? []).map((d) => d.chefId)),
+    [dishMatches],
+  );
+
   const chefs = useMemo(() => {
     if (!data) return [];
-    const q = query.trim().toLowerCase();
+    const q = trimmedQuery.toLowerCase();
     return data.exploreChefResponseDtoList.filter((chef) => {
       const name = translate(chef.name).toLowerCase();
       const kitchen = translate(chef.kitchen);
       if (kitchenFilter && kitchen !== kitchenFilter) return false;
       if (!q) return true;
-      return name.includes(q) || kitchen.toLowerCase().includes(q);
+      return (
+        name.includes(q) ||
+        kitchen.toLowerCase().includes(q) ||
+        translate(chef.description).toLowerCase().includes(q) ||
+        chefIdsWithMatchingDishes.has(chef.id)
+      );
     });
-  }, [data, query, kitchenFilter]);
+  }, [data, trimmedQuery, kitchenFilter, chefIdsWithMatchingDishes]);
+
+  const isFiltered = trimmedQuery.length > 0 || kitchenFilter !== null;
 
   const totalPages = data ? Math.ceil(data.count / PAGE_SIZE) : 0;
 
@@ -63,8 +84,12 @@ export default function Explore() {
           Explore chefs
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
-          {data ? (
-            <span className="tabular-nums">{data.count} chefs cooking near you</span>
+          {data && isFiltered ? (
+            <span className="ep_count tabular-nums">
+              {chefs.length} of {data.count} {data.count === 1 ? "chef" : "chefs"} match
+            </span>
+          ) : data ? (
+            <span className="ep_count tabular-nums">{data.count} chefs cooking near you</span>
           ) : (
             "Browse independent local chefs, each with their own kitchen and unique menu."
           )}

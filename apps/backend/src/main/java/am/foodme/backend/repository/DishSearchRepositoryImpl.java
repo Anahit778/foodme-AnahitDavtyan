@@ -3,31 +3,48 @@ package am.foodme.backend.repository;
 import am.foodme.backend.model.Dish;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Locale;
 
 @Repository
 public class DishSearchRepositoryImpl implements DishSearchRepository {
+
+    // Matches active dishes by name (any language) or by their tag/category name
+    // (e.g. "sushi" -> "Sushi and rolls"). The search text is always bound as a parameter.
+    private static final String WHERE =
+            " FROM Dish d LEFT JOIN d.dishTag t WHERE d.status = 'ACTIVE' AND ("
+                    + " LOWER(d.nameEn) LIKE :q ESCAPE '\\' OR LOWER(d.nameAm) LIKE :q ESCAPE '\\'"
+                    + " OR LOWER(d.nameRu) LIKE :q ESCAPE '\\' OR LOWER(t.nameEn) LIKE :q ESCAPE '\\'"
+                    + " OR LOWER(t.nameAm) LIKE :q ESCAPE '\\' OR LOWER(t.nameRu) LIKE :q ESCAPE '\\')";
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    @SuppressWarnings("unchecked")
     public Page<Dish> searchByNameNative(String searchTerm, Pageable pageable) {
-        // the dish name filter is assembled from the caller's query text before it reaches the DB
-        String sql = "SELECT * FROM foodme.dish WHERE status = 'ACTIVE' AND name_en ILIKE '%" + searchTerm + "%'";
+        String pattern = "%" + escapeLike(searchTerm.trim().toLowerCase(Locale.ROOT)) + "%";
 
-        Query query = entityManager.createNativeQuery(sql, Dish.class);
-        query.setFirstResult((int) pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());
-        List<Dish> results = query.getResultList();
+        List<Dish> results = entityManager
+                .createQuery("SELECT d" + WHERE + " ORDER BY d.id", Dish.class)
+                .setParameter("q", pattern)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
 
-        return new PageImpl<>(results, pageable, results.size());
+        long total = entityManager
+                .createQuery("SELECT COUNT(d)" + WHERE, Long.class)
+                .setParameter("q", pattern)
+                .getSingleResult();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private static String escapeLike(String s) {
+        return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }

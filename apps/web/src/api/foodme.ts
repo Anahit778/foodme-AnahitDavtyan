@@ -25,6 +25,11 @@ export const foodmeApi = {
   getActiveDishes: (chefId: number | string, page = 0, size = 50) =>
     apiClient.get<DishPaginationCountDto>(`/api/dish/${chefId}/active?page=${page}&size=${size}`),
 
+  searchDishes: (query: string, page = 0, size = 200) =>
+    apiClient.get<DishPaginationCountDto>(
+      `/api/dish/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
+    ),
+
   getDishTags: (chefId: number | string) =>
     apiClient.get<ChefTagOrderWithDishTagDto[]>(`/api/dish/tags?chefId=${chefId}`),
 
