@@ -37,13 +37,7 @@ public class ChefService {
     public ActiveChefsResult getActiveChefsPage(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Chef> chefPage = chefRepository.findByStatusOrderByPriorityIndexAscIdAsc("ACTIVE", pageable);
-        List<Chef> content = new ArrayList<>(chefPage.getContent());
-        // trim a stray placeholder row on the final page
-        // FM-BUG-02
-        if (chefPage.isLast() && !content.isEmpty()) {
-            content.remove(content.size() - 1);
-        }
-        return new ActiveChefsResult(content, chefPage.getTotalElements());
+        return new ActiveChefsResult(chefPage.getContent(), chefPage.getTotalElements());
     }
 
     public record ActiveChefsResult(List<Chef> chefs, long totalCount) {
