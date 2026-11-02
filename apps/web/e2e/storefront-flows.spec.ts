@@ -59,6 +59,24 @@ test.describe("Storefront flows", () => {
     await expect(cart.getByText(/empty/i)).toBeVisible();
   });
 
+  // KAN-4 / FM-BUG-07: decrementing must stop at the minimum, not one step above it.
+  test("cart quantity decrease keeps item at its minimum, removes it below", async ({ page }) => {
+    const cart = await addFirstDishToCart(page);
+    const qty = cart.locator(".fm-qty-grp p");
+    const min = Number(await qty.textContent());
+
+    await cart.getByRole("button", { name: "Increase quantity" }).click();
+    await expect(qty).toHaveText(String(min + 1));
+
+    await cart.getByRole("button", { name: "Decrease quantity" }).click();
+    await expect(cart.locator(".cic_root")).toHaveCount(1);
+    await expect(qty).toHaveText(String(min));
+
+    await cart.getByRole("button", { name: "Decrease quantity" }).click();
+    await expect(cart.locator(".cic_root")).toHaveCount(0);
+    await expect(cart.getByText(/empty/i)).toBeVisible();
+  });
+
   test("delivery shows address fields; takeaway hides them", async ({ page }) => {
     await addFirstDishToCart(page);
     await page.locator("aside.uc-panel").getByRole("link", { name: "Go to checkout" }).click();
