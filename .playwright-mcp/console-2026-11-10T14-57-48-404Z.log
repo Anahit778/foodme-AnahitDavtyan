@@ -1,0 +1,42 @@
+[      96ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   16187ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   17667ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   28470ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   31523ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   37304ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   45518ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   47525ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   49519ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[   98734ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[  155565ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ http://localhost:8081/api/customer/orders/FM-100005/cancel:1
+[  158191ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5180/@vite/client:1003
+[  158193ms] [ERROR] Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED @ http://localhost:8081/api/order/number/FM-100005:1
+[ 1221778ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[ 1252323ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ http://localhost:8081/api/order/number/FM-100005:1
+[ 1252938ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ http://localhost:8081/api/customer/me:1
+[ 1272463ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ http://localhost:8081/api/customer/me:1
+[ 1284594ms] [ERROR] Failed to load resource: the server responded with a status of 500 () @ http://localhost:8081/api/order/number/FM-100005:1
+[ 1308222ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8081/api/customer/orders/FM-100005/cancel:1
+[ 1309134ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ http://localhost:8081/api/customer/orders/FM-100005/cancel:1
+[ 1309139ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ http://localhost:8081/api/customer/orders/FM-100005/cancel:1
+[ 1309162ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ http://localhost:8081/api/customer/orders/FM-100005/cancel:1
+[ 1311255ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8081/api/customer/orders/DOES-NOT-EXIST/cancel:1
+[ 1314709ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/api/customer/orders/FM-100006/cancel:1
+[ 1317097ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/api/customer/orders/FM-100002/cancel:1
+[ 1318123ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/api/customer/orders/FM-100003/cancel:1
+[ 1319538ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/api/customer/orders/FM-100004/cancel:1
+[ 1322227ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/admin/order/6/status:1
+[ 1322981ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/admin/order/6/status:1
+[ 1324361ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/admin/order/6/status:1
+[ 1325503ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/admin/order/6/status:1
+[ 1327683ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/admin/order/5/status:1
+[ 1363600ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[ 1408761ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[ 1423559ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/api/customer/orders/FM-100008/cancel:1
+[ 1435106ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[ 1439113ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/api/customer/orders/FM-100009/cancel:1
+[ 1486880ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[ 1490496ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ http://localhost:8081/api/customer/orders/FM-100034/cancel:1
+[ 1493505ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[ 1499096ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336
+[ 1594128ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:5180/node_modules/.vite/deps/react-dom_client.js?v=770fb66a:14336

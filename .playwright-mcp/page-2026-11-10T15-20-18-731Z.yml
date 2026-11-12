@@ -1,0 +1,24 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - heading "FoodMe Admin" [level=1] [ref=e9]
+    - paragraph [ref=e10]: Sign in to the back office
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]: Username
+      - generic [ref=e14]:
+        - textbox "Username" [active] [ref=e15]
+        - group [aria-hidden]:
+          - generic: Username
+    - generic [ref=e16]:
+      - generic: Password
+      - generic [ref=e17]:
+        - textbox "Password" [ref=e18]
+        - group [aria-hidden]:
+          - generic: Password
+    - button "Sign in" [disabled]
+    - alert [ref=e19]:
+      - generic [ref=e23]:
+        - text: Training sandbox — use
+        - strong [ref=e24]: admin
+        - text: /
+        - strong [ref=e25]: admin123

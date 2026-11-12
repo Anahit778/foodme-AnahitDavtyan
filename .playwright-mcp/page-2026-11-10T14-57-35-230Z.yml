@@ -1,0 +1,60 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "FoodMe home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "FoodMe" [ref=e7]:
+          - generic [ref=e8]: Food
+          - generic [ref=e9]: Me
+      - generic [ref=e10]: Yerevan · Now
+      - generic [ref=e16]:
+        - generic [ref=e17]: Search FoodMe
+        - searchbox "Search FoodMe" [ref=e18]
+      - navigation [ref=e19]:
+        - link "Explore chefs" [ref=e20] [cursor=pointer]:
+          - /url: /explore
+        - link "Sign in" [ref=e21] [cursor=pointer]:
+          - /url: /login?next=%2Forders
+        - link "Cart" [ref=e22] [cursor=pointer]:
+          - /url: /checkout
+          - generic [ref=e28]: "0"
+  - main [ref=e29]:
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - heading "Sign in" [level=1] [ref=e32]
+        - paragraph [ref=e33]: Use your FoodMe account to place orders and keep a history you can track later.
+      - generic [ref=e36]:
+        - tablist "Account" [ref=e37]:
+          - tab "Sign in" [selected] [ref=e38]
+          - tab "Create account" [ref=e39]
+        - form "Sign in" [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e42]: Email
+            - textbox "Email" [ref=e43]:
+              - /placeholder: ara@example.com
+          - generic [ref=e44]:
+            - generic [ref=e45]: Password
+            - textbox "Password" [ref=e46]:
+              - /placeholder: At least 8 characters
+          - button "Sign in" [ref=e47]
+      - paragraph [ref=e48]:
+        - text: New here?
+        - link "Create an account" [ref=e49] [cursor=pointer]:
+          - /url: /register?next=%2Forders
+  - contentinfo [ref=e50]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - paragraph [ref=e53]: FoodMe
+        - paragraph [ref=e54]: A demo food-ordering platform. Chefs, dishes and orders on this site are fictional.
+      - navigation [ref=e55]:
+        - link "Explore" [ref=e56] [cursor=pointer]:
+          - /url: /explore
+        - link "Orders" [ref=e57] [cursor=pointer]:
+          - /url: /orders
+        - link "Sign in" [ref=e58] [cursor=pointer]:
+          - /url: /login?next=/orders
+        - generic [ref=e59]: Cash on delivery
+        - generic [ref=e60]: Yerevan
+    - generic [ref=e62]:
+      - generic [ref=e63]: © 2026 FoodMe
+      - generic [ref=e64]: Built with care
