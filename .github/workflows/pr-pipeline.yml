@@ -4,24 +4,22 @@ on:
   pull_request:
     branches: [main]
 
-# A new push to the same PR cancels the previous, still-running pipeline
+
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
-  contents: write # Qodana
-  pull-requests: write # Qodana PR comment
-  checks: write # Qodana annotations
+  contents: write 
+  pull-requests: write 
+  checks: write 
 
 env:
-  JAVA_VERSION: "17" # apps/backend: Spring Boot 3.3, Java 17
-  NODE_VERSION: "22" # same as apps/backend/Dockerfile (node:22-alpine)
+  JAVA_VERSION: "17" 
+  NODE_VERSION: "22" 
 
 jobs:
-  # ===================================================================
-  # 1. UNIT TESTS – backend test suite (apps/backend, H2, profile "test")
-  # ===================================================================
+
   unit-tests:
     name: Unit tests (backend)
     runs-on: ubuntu-latest
@@ -49,9 +47,7 @@ jobs:
           path: apps/backend/build/reports/tests/test/
           retention-days: 7
 
-  # ===================================================================
-  # 2. INTEGRATION TESTS – real Docker image + real Postgres
-  # ===================================================================
+
   integration-tests:
     name: Integration tests (Docker image + Postgres)
     runs-on: ubuntu-latest
@@ -115,9 +111,7 @@ jobs:
         if: always()
         run: docker logs foodme | tail -n 200
 
-  # ===================================================================
-  # 3. E2E TESTS – Playwright for storefront (web) and admin
-  # ===================================================================
+
   e2e-tests:
     name: E2E tests (${{ matrix.app }})
     runs-on: ubuntu-latest
@@ -193,9 +187,7 @@ jobs:
             /tmp/backend.log
           retention-days: 7
 
-  # ===================================================================
-  # 4. STATIC ANALYSIS – Qodana (https://qodana.cloud)
-  # ===================================================================
+
   qodana:
     name: Qodana (${{ matrix.name }})
     runs-on: ubuntu-latest
@@ -225,9 +217,7 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets[matrix.token] }}
 
-  # ===================================================================
-  # GATE – the single check to mark as "required" in branch protection
-  # ===================================================================
+  
   ci-passed:
     name: CI passed
     runs-on: ubuntu-latest
