@@ -40,6 +40,7 @@ GlitchTip collects the app's errors so you can see them later.
 
 ---
 
+
 ## Step 3 — Put the app online (Render)
 
 1. Sign up at [render.com](https://render.com) — choose **"Sign up with GitHub"**.

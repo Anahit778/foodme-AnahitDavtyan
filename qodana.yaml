@@ -1,0 +1,17 @@
+# Qodana config for the frontends: apps/web (React 19 + TS) and apps/admin (react-admin, JS/JSX)
+# The backend has its own config in apps/backend/qodana.yaml.
+version: "1.0"
+linter: jetbrains/qodana-js:2026.2 # needs Ultimate (60-day trial on qodana.cloud)
+profile:
+  name: qodana.recommended
+bootstrap: npm ci --prefix apps/web && npm ci --prefix apps/admin
+exclude:
+  - name: All
+    paths:
+      - apps/backend
+      - infra
+      - "**/node_modules"
+      - "**/dist"
+      - "**/playwright-report"
+      - "**/test-results"
+      - "*.patch"
