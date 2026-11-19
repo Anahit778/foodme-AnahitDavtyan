@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "jira": {
+      "command": "cmd",
+      "args": ["/c", "agentsecrets", "env", "--", "uvx", "mcp-atlassian"]
+    },
+    "qase": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "agentsecrets",
+        "env",
+        "--",
+        "npx",
+        "-y",
+        "@qase/mcp-server"
+      ]
+    },
+    "playwright": {
+      "command": "cmd",
+      "args": ["/c", "npx", "@playwright/mcp@latest"]
+    }
+  }
+}
