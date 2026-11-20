@@ -1,0 +1,45 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "FoodMe home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "FoodMe" [ref=e7]:
+          - generic [ref=e8]: Food
+          - generic [ref=e9]: Me
+      - generic [ref=e10]: Yerevan · Now
+      - generic [ref=e66]:
+        - generic [ref=e67]: Search FoodMe
+        - searchbox "Search FoodMe" [ref=e68]
+      - navigation [ref=e19]:
+        - link "Explore chefs" [ref=e20] [cursor=pointer]:
+          - /url: /explore
+        - link "Orders" [ref=e69] [cursor=pointer]:
+          - /url: /orders
+        - link "Cart" [ref=e22] [cursor=pointer]:
+          - /url: /checkout
+          - generic [ref=e28]: "0"
+        - link "Account, QA Customer A" [ref=e70] [cursor=pointer]:
+          - /url: /orders
+          - text: Q
+  - main [ref=e29]:
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - heading "Your orders" [level=1] [ref=e73]
+        - paragraph [ref=e74]: Signed in as qa-a-1794322587-515@example.com
+        - button "Sign out" [ref=e75]
+      - generic "Loading orders" [ref=e76]
+  - contentinfo [ref=e50]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - paragraph [ref=e53]: FoodMe
+        - paragraph [ref=e54]: A demo food-ordering platform. Chefs, dishes and orders on this site are fictional.
+      - navigation [ref=e55]:
+        - link "Explore" [ref=e56] [cursor=pointer]:
+          - /url: /explore
+        - link "Orders" [ref=e57] [cursor=pointer]:
+          - /url: /orders
+        - generic [ref=e59]: Cash on delivery
+        - generic [ref=e60]: Yerevan
+    - generic [ref=e62]:
+      - generic [ref=e63]: © 2026 FoodMe
+      - generic [ref=e64]: Built with care

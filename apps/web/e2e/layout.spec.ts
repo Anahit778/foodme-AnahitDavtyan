@@ -25,7 +25,7 @@ test.describe("Layout Tests", () => {
 
     const chefsGrid = page.locator("section:has-text('Chefs worth knowing') .grid").first();
     const chefCards = chefsGrid.locator("a.cc_card");
-    // Seed has 6 ACTIVE chefs; list endpoint drops one on the last page (FM-BUG-02).
+    // Seed has 6 ACTIVE chefs (all returned since the KAN-5 / FM-BUG-02 fix).
     await expect(chefCards.first()).toBeVisible();
     expect(await chefCards.count()).toBeGreaterThanOrEqual(4);
 

@@ -5,7 +5,12 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import am.foodme.backend.exceptionHandler.BadRequestException;
+import am.foodme.backend.repository.OrderRepository;
+import am.foodme.backend.service.AdminOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +40,12 @@ class OrderControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private AdminOrderService adminOrderService;
 
     private final AtomicInteger customerSeq = new AtomicInteger();
 
@@ -157,5 +168,88 @@ class OrderControllerTest {
         String createdAt = objectMapper.readTree(orderResponse).get("createdAt").asText();
 
         assertTrue(createdAt.startsWith(LocalDate.now().toString()));
+    }
+
+    // --- KAN-10: customer self-cancellation (unordered tests run after the @Order ones) ---
+
+    private String placeOrder(String token) throws Exception {
+        String response = mockMvc.perform(post("/api/order")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cashOrderPayload()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(response).get("number").asText();
+    }
+
+    @Test
+    void cancelOrder_whileReceived_marksCancelled() throws Exception {
+        String token = customerToken();
+        String number = placeOrder(token);
+
+        mockMvc.perform(post("/api/customer/orders/" + number + "/cancel")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+
+        mockMvc.perform(get("/api/order/number/" + number))
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+        mockMvc.perform(get("/api/customer/orders").header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.list[0].status").value("CANCELLED"));
+    }
+
+    @Test
+    void cancelOrder_afterKitchenAccepted_refused() throws Exception {
+        String token = customerToken();
+        String number = placeOrder(token);
+        var order = orderRepository.findByNumber(number).orElseThrow();
+        order.setStatus("ACCEPTED");
+        orderRepository.save(order);
+
+        mockMvc.perform(post("/api/customer/orders/" + number + "/cancel")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Order can only be cancelled before the kitchen accepts it"));
+        assertEquals("ACCEPTED", orderRepository.findByNumber(number).orElseThrow().getStatus());
+    }
+
+    @Test
+    void cancelOrder_twice_refused() throws Exception {
+        String token = customerToken();
+        String number = placeOrder(token);
+        mockMvc.perform(post("/api/customer/orders/" + number + "/cancel").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/customer/orders/" + number + "/cancel").header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void cancelOrder_ofAnotherCustomer_notFound() throws Exception {
+        String number = placeOrder(customerToken());
+
+        mockMvc.perform(post("/api/customer/orders/" + number + "/cancel")
+                        .header("Authorization", "Bearer " + customerToken()))
+                .andExpect(status().isNotFound());
+        assertEquals("NEW", orderRepository.findByNumber(number).orElseThrow().getStatus());
+    }
+
+    @Test
+    void cancelOrder_withoutToken_unauthorized() throws Exception {
+        mockMvc.perform(post("/api/customer/orders/FM-100001/cancel"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void cancelledOrder_isFinal_adminCannotMoveIt() throws Exception {
+        String token = customerToken();
+        String number = placeOrder(token);
+        mockMvc.perform(post("/api/customer/orders/" + number + "/cancel").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+        Long id = orderRepository.findByNumber(number).orElseThrow().getId();
+
+        for (String target : List.of("NEW", "ACCEPTED", "DELIVERED", "REJECTED")) {
+            assertThrows(BadRequestException.class, () -> adminOrderService.updateStatus(id, target, "x"));
+        }
+        assertEquals("CANCELLED", orderRepository.findByNumber(number).orElseThrow().getStatus());
     }
 }

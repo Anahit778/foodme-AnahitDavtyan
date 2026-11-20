@@ -168,6 +168,26 @@ public class OrderService {
         return OrderDto.mapEntityToDto(order);
     }
 
+    /**
+     * KAN-10: a customer may cancel their own order only while it is still NEW
+     * (received, not yet accepted by the kitchen). CANCELLED is final.
+     */
+    @Transactional
+    public OrderDto cancelForCustomer(String number, String customerEmail) {
+        Customer customer = customerRepository.findByEmail(customerEmail == null ? "" : customerEmail.trim().toLowerCase())
+                .orElseThrow(() -> new NotFoundException("Customer not found"));
+        Order order = orderRepository.findWithLockByNumber(number)
+                .filter(o -> o.getCustomer() != null && o.getCustomer().getId().equals(customer.getId()))
+                .orElseThrow(() -> new NotFoundException("Order " + number + " not found"));
+        if (!"NEW".equals(order.getStatus())) {
+            throw new BadRequestException("Order can only be cancelled before the kitchen accepts it");
+        }
+        order.setStatus("CANCELLED");
+        Order saved = orderRepository.save(order);
+        meterRegistry.counter("foodme.orders.cancelled").increment();
+        return OrderDto.mapEntityToDto(saved);
+    }
+
     @Transactional(readOnly = true)
     public OrderListResponseDto listForCustomer(String customerEmail, int page, int size) {
         Customer customer = customerRepository.findByEmail(customerEmail == null ? "" : customerEmail.trim().toLowerCase())

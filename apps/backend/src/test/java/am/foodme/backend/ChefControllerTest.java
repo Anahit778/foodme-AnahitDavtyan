@@ -27,6 +27,24 @@ class ChefControllerTest {
                 .andExpect(jsonPath("$.count").value(2));
     }
 
+    // KAN-5 / FM-BUG-02: the last chef on the final page must not be dropped.
+    @Test
+    void getActiveChefs_returnsEveryCountedChef() throws Exception {
+        mockMvc.perform(get("/api/chef/active").param("page", "0").param("size", "12"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(2))
+                .andExpect(jsonPath("$.exploreChefResponseDtoList.length()").value(2))
+                .andExpect(jsonPath("$.exploreChefResponseDtoList[1].id").value(2));
+    }
+
+    @Test
+    void getActiveChefs_pagingCoversAllChefs() throws Exception {
+        mockMvc.perform(get("/api/chef/active").param("page", "1").param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.exploreChefResponseDtoList.length()").value(1))
+                .andExpect(jsonPath("$.exploreChefResponseDtoList[0].id").value(2));
+    }
+
     @Test
     void getChefById_returnsChefWithDishes() throws Exception {
         mockMvc.perform(get("/api/chef/1"))

@@ -14,8 +14,11 @@ interface DishCardProps {
 export function DishCard({ dish, onOpen, onChefMismatch }: DishCardProps) {
   const quickAdd = async (event: MouseEvent) => {
     event.stopPropagation();
-    const result = await addDishToCart(dish, Math.max(dish.minimumOrderCount ?? 1, 1));
-    if (result === "mismatch") onChefMismatch?.(dish, Math.max(dish.minimumOrderCount ?? 1, 1));
+    // Quick add selects no options: dish.additions lists what is *available*, not what was chosen (KAN-9).
+    const plainDish: DishDto = { ...dish, additions: [] };
+    const qty = Math.max(dish.minimumOrderCount ?? 1, 1);
+    const result = await addDishToCart(plainDish, qty);
+    if (result === "mismatch") onChefMismatch?.(plainDish, qty);
   };
 
   return (

@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { Check, ChefHat, Package, Truck, X } from "lucide-react";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Ban, Check, ChefHat, Package, Truck, X } from "lucide-react";
 import { foodmeApi } from "@/api/foodme";
 import { Button } from "@/components/ui/button";
 import { formatAmd } from "@/lib/utils";
@@ -29,22 +30,52 @@ const STATUS_COPY: Record<string, { title: string; detail: string }> = {
     title: "Order declined",
     detail: "This order couldn’t be fulfilled. Contact support if you need help.",
   },
+  CANCELLED: {
+    title: "Order cancelled",
+    detail: "You cancelled this order before the kitchen accepted it. Nothing will be prepared or charged.",
+  },
 };
 
 function stepIndex(status: string): number {
-  if (status === "REJECTED") return -1;
+  if (status === "REJECTED" || status === "CANCELLED") return -1;
   const i = STEPS.findIndex((s) => s.key === status);
   return i >= 0 ? i : 0;
 }
 
 export default function Tracking() {
   const { number } = useParams<{ number: string }>();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, customer } = useAuth();
+  const queryClient = useQueryClient();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["order", number],
     queryFn: () => foodmeApi.getOrderByNumber(number as string),
     enabled: !!number,
+  });
+
+  // KAN-10: only the owner may cancel. The tracking DTO carries no customer id,
+  // so ownership is checked against the signed-in customer's own order list
+  // (same cache key as the My Orders page). The backend enforces it regardless.
+  const { data: myOrders } = useQuery({
+    queryKey: ["my-orders", customer?.id],
+    queryFn: () => foodmeApi.getMyOrders(),
+    enabled: isAuthenticated && data?.status === "NEW",
+  });
+  const ownsOrder = !!myOrders?.list.some((o) => o.number === number);
+
+  const cancelMutation = useMutation({
+    mutationFn: () => foodmeApi.cancelMyOrder(number as string),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["order", number], updated);
+      void queryClient.invalidateQueries({ queryKey: ["my-orders"] });
+      setConfirmingCancel(false);
+    },
+    onError: () => {
+      // The kitchen may have accepted it meanwhile; show the real status.
+      setConfirmingCancel(false);
+      void refetch();
+    },
   });
 
   if (isLoading) {
@@ -86,6 +117,8 @@ export default function Tracking() {
   };
   const active = stepIndex(data.status);
   const rejected = data.status === "REJECTED";
+  const cancelled = data.status === "CANCELLED";
+  const canCancel = data.status === "NEW" && isAuthenticated && ownsOrder;
 
   return (
     <div className="tp_wrap mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-14">
@@ -104,7 +137,17 @@ export default function Tracking() {
 
       <div className="bezel-outer shadow-diffuse mt-8 animate-fade-up [animation-delay:60ms]">
         <div className="bezel-inner p-5 md:p-6">
-          {rejected ? (
+          {cancelled ? (
+            <div className="flex items-start gap-3" data-testid="order-cancelled">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 ring-1 ring-zinc-200">
+                <Ban size={18} strokeWidth={2} />
+              </div>
+              <div>
+                <p className="font-display text-lg font-bold text-zinc-900">{copy.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-zinc-500">{copy.detail}</p>
+              </div>
+            </div>
+          ) : rejected ? (
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600 ring-1 ring-red-100">
                 <X size={18} strokeWidth={2} />
@@ -168,6 +211,53 @@ export default function Tracking() {
                   );
                 })}
               </ol>
+
+              {canCancel && (
+                <div className="mt-6 border-t border-zinc-100 pt-5">
+                  {confirmingCancel ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="mr-auto text-sm text-zinc-700">Cancel this order?</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                        disabled={cancelMutation.isPending}
+                        onClick={() => setConfirmingCancel(false)}
+                      >
+                        Keep order
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="rounded-full bg-red-600 text-white hover:bg-red-700"
+                        disabled={cancelMutation.isPending}
+                        onClick={() => cancelMutation.mutate()}
+                      >
+                        {cancelMutation.isPending ? "Cancelling…" : "Yes, cancel"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-red-200 text-red-700 hover:bg-red-50"
+                      onClick={() => {
+                        cancelMutation.reset();
+                        setConfirmingCancel(true);
+                      }}
+                    >
+                      Cancel order
+                    </Button>
+                  )}
+                  <p className="mt-2 text-xs text-zinc-500">
+                    You can cancel until the kitchen accepts your order.
+                  </p>
+                </div>
+              )}
+              {cancelMutation.isError && (
+                <p className="mt-4 text-sm text-red-700" role="alert">
+                  {cancelMutation.error.message || "Couldn’t cancel this order."}
+                </p>
+              )}
             </>
           )}
         </div>
