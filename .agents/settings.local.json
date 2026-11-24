@@ -2,6 +2,8 @@
   "enabledMcpjsonServers": [
     "jira",
     "qase",
-    "playwright"
+    "playwright",
+    "glitchtip",
+    "grafana"
   ]
 }

@@ -9,7 +9,7 @@ This skill **runs the whole flow**, step after step, in this session. It pauses 
 
 Rule: **agents create, judges check (read-only), the human reviews and decides.**
 
-Argument: only `T`, the ticket key (e.g. `KAN-27`; if none was given, ask). The SUT is known and fixed: `https://foodme-armanayvazyan-5cz9.onrender.com/`. Never ask the human for it.
+Argument: only `T`, the ticket key (e.g. `KAN-27`; if none was given, ask). The SUT is known and fixed: `https://foodme-anahitdavtyan.onrender.com/`. Never ask the human for it.
 
 ## Run directory `R = agentic-workflows/functional-testing/runs/<T>/`
 
@@ -37,7 +37,7 @@ Argument: only `T`, the ticket key (e.g. `KAN-27`; if none was given, ask). The 
 | 06 + 07 + 08 | `test-automation` (calls `test-judge` in phase 2, then runs the suite) | `e2e/<t>-*.spec.ts`, `verdicts/07-*`, `results.json`             | approval → `tests`                                                                                                                  |
 | 10           | `test-reporting`                                                       | `report.md`, `found_issues.json`, `report.html`, Qase, Jira bugs | approval → `report_push`; which issues are real bugs → `issues`, then a Jira ticket for each approved one                           |
 
-Step 09 (triage) is not part of this lesson. Mismatches from 05 and failures from 08 go into the report as **not triaged**.
+Step 09 (triage) is not run inside this pipeline. Mismatches from 05 and failures from 08 go into the report as **not triaged**; the human can triage any of them afterwards with `/triage-pipeline <case id or Jira key>` (see `agentic-workflows/triage/README.md`).
 
 ## How to run
 

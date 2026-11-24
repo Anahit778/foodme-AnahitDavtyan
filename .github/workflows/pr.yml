@@ -13,12 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Run unit tests
         working-directory: apps/backend
         run: bash ./gradlew test --tests '*UnitTest'
@@ -28,12 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Run controller integration tests
         working-directory: apps/backend
         run: bash ./gradlew test --tests '*ControllerTest'
@@ -41,7 +37,7 @@ jobs:
   e2e:
     name: E2E tests
     runs-on: ubuntu-latest
-
+    timeout-minutes: 25
     services:
       postgres:
         image: postgres:16
@@ -62,34 +58,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-
       - name: Install dependencies and Chromium
         run: |
           npm --prefix apps/web ci
           npm --prefix apps/admin ci
           (cd apps/web && npx playwright install --with-deps chromium)
           (cd apps/admin && npx playwright install chromium)
-
       - name: Start backend and run Playwright tests
+        shell: bash
         run: |
-          (cd apps/backend && exec bash ./gradlew --no-daemon bootRun) \
-            > "$RUNNER_TEMP/foodme-backend.log" 2>&1 &
+          backend_log="$RUNNER_TEMP/foodme-backend.log"
+          (cd apps/backend && exec bash ./gradlew --no-daemon bootRun) > "$backend_log" 2>&1 &
           backend_pid=$!
           trap 'kill "$backend_pid" 2>/dev/null || true' EXIT
 
           if ! curl --fail --silent --show-error --max-time 5 \
-            --retry 60 --retry-delay 2 --retry-connrefused \
+            --retry 90 --retry-delay 2 --retry-connrefused \
             http://localhost:8081/actuator/health; then
-            cat "$RUNNER_TEMP/foodme-backend.log"
+            cat "$backend_log"
             exit 1
           fi
 
@@ -106,7 +99,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-
       - name: Run Qodana scan
         uses: JetBrains/qodana-action@v2026.2
         with:
