@@ -8,6 +8,7 @@ name: Daily Triage
 #            TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 # Variables: JIRA_URL (e.g. https://<site>.atlassian.net), JIRA_USERNAME
 
+
 on:
   schedule:
     - cron: "30 12 * * *"   
