@@ -35,7 +35,7 @@ If the brief is missing the run dir, the brief id or the question, return `statu
 
 ## Browser briefs (Playwright MCP)
 
-- SUT: `https://foodme-anahitdavtyan.onrender.com/` unless the brief says otherwise. MCP servers `playwright`, `grafana` and `glitchtip` come from the repo-root `.mcp.json`; if one isn't connected, return `status: "blocked"` with that obstacle.
+- SUT: `https://foodme-anahitdavtyan.onrender.com/` unless the brief says otherwise. MCP servers `playwright`, `grafana` and `glitchtip` come from the repo-root `.mcp.json` (in CI: `.github/mcp-ci.json`, headless browser, no human at the screen); if one isn't connected, return `status: "blocked"` with that obstacle.
 - **The human signs in, not you.** Never type a password, create an account or sign out. If you need a signed-in customer and the page isn't signed in, stop and return `status: "blocked"` with `needs: "human must sign in as a customer in the Playwright window"`.
 - The API adds a random 200–1500 ms delay on purpose, and a free-tier cold start can take a minute. Wait for elements before acting; retry a step once before calling a result different.
 - Change **one factor at a time** in experiments (fresh vs reused customer, delivery vs takeaway, order of codes, cart contents, a page reload…), and say which factor you changed.

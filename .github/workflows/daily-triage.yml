@@ -1,0 +1,126 @@
+name: Daily Triage
+
+# Once a day: find new GlitchTip issues in backend / web / admin, run the
+# triage-pipeline on each one (unattended, via the daily-triage skill),
+# open a Jira bug per issue and post a summary to Telegram.
+#
+# Secrets:   CLAUDE_CODE_OAUTH_TOKEN, GLITCHTIP_TOKEN, JIRA_API_TOKEN,
+#            TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+# Variables: JIRA_URL (e.g. https://<site>.atlassian.net), JIRA_USERNAME
+
+on:
+  schedule:
+    - cron: "30 12 * * *"   
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Issues first seen since (ISO date). Empty = last 24h"
+        required: false
+      max_issues:
+        description: "Max issues to triage"
+        required: false
+        default: "5"
+
+concurrency:
+  group: daily-triage
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TRIAGE_SINCE: ${{ inputs.since }}
+      MAX_ISSUES: ${{ inputs.max_issues || '5' }}
+      GLITCHTIP_TOKEN: ${{ secrets.GLITCHTIP_TOKEN }}
+      JIRA_URL: ${{ vars.JIRA_URL }}
+      JIRA_USERNAME: ${{ vars.JIRA_USERNAME }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node (GlitchTip and Playwright MCP)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Set up uv (Jira MCP)
+        uses: astral-sh/setup-uv@v5
+
+      # The Playwright MCP drives the Google Chrome that ubuntu-latest already has.
+      - name: Check that required secrets are set
+        run: |
+          missing=""
+          for v in GLITCHTIP_TOKEN JIRA_URL JIRA_USERNAME JIRA_API_TOKEN; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "⛔ Daily triage $(date -u +%F): missing secrets/variables:$missing" > triage-summary.md
+            echo "::error::Missing:$missing"
+            exit 1
+          fi
+          google-chrome --version
+
+      - name: Run daily triage
+        id: triage
+        uses: anthropics/claude-code-action@v1
+        env:
+          CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1"
+        with:
+          show_full_output: true
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Run the daily-triage skill. You are in CI: no human is present, never ask questions.
+            Run triage-pipeline with unattended: true for every issue.
+            TRIAGE_SINCE=${{ env.TRIAGE_SINCE }} (empty means the last 24 hours).
+            MAX_ISSUES=${{ env.MAX_ISSUES }}.
+            Write triage-summary.md in the repo root before you finish.
+          claude_args: >-
+            --model opus
+            --mcp-config .github/mcp-ci.json
+            --strict-mcp-config
+            --allowedTools "Skill,Agent,Task,SendMessage,ToolSearch,TodoWrite,Read,Write,Edit,Glob,Grep,mcp__glitchtip,mcp__grafana,mcp__jira,mcp__playwright"
+
+      # If Claude crashed before writing a summary, write a fallback one
+      - name: Make sure there is a summary
+        if: always()
+        run: |
+          if [ ! -s triage-summary.md ]; then
+            echo "⛔ Daily triage $(date -u +%F) failed before writing a summary." > triage-summary.md
+          fi
+          cat triage-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Send summary to Telegram
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::warning::Telegram secrets not set, skipping"
+            exit 0
+          fi
+          # Telegram limit is 4096 chars per message
+          { head -c 3800 triage-summary.md; printf '\n\n🔗 %s' "$RUN_URL"; } > message.txt
+          curl -sS --fail "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --form-string "chat_id=${TELEGRAM_CHAT_ID}" \
+            --form-string "text=$(cat message.txt)" \
+            --form-string "disable_web_page_preview=true" > /dev/null
+
+      - name: Upload triage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage-${{ github.run_id }}
+          path: |
+            triage-summary.md
+            agentic-workflows/triage/
+            agentic-workflows/playwright-output/
+          if-no-files-found: warn
+          retention-days: 30

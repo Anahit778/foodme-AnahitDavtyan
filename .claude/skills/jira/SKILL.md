@@ -9,7 +9,7 @@ description: Use when creating, updating, triaging or reading Jira tickets for F
 
 | | |
 |---|---|
-| MCP server | `jira` in the repo-root `.mcp.json` (mcp-atlassian; credentials come from `agentsecrets`). Tools are `mcp__jira__jira_*`. |
+| MCP server | `jira` in the repo-root `.mcp.json` (mcp-atlassian; credentials come from `agentsecrets`). In CI it comes from `.github/mcp-ci.json` with `JIRA_URL`/`JIRA_USERNAME`/`JIRA_API_TOKEN` from GitHub secrets and variables. Tools are `mcp__jira__jira_*`. |
 | Project | `KAN` ("Ai in QA"). Board id `2` ("KAN board", type `simple`). Ignore `SAM1`, which is Atlassian sample data. |
 | Issue types (the site is in Russian) | `Баг` = Bug (id 10010), `Задание` = Task (10008), `История` = Story (10009), `Подзадача` = Subtask (10007), `Эпик` = Epic (10006) |
 | Priorities | `Highest`, `High`, `Medium`, `Low`, `Lowest` |

@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "glitchtip": {
+      "command": "npx",
+      "args": ["-y", "mcp-glitchtip@0.1.2"],
+      "env": {
+        "GLITCHTIP_TOKEN": "${GLITCHTIP_TOKEN}",
+        "GLITCHTIP_ORGANIZATION": "foodme",
+        "GLITCHTIP_BASE_URL": "https://app.glitchtip.com"
+      }
+    },
+    "grafana": {
+      "type": "http",
+      "url": "https://foodme-monitoring.onrender.com/mcp"
+    },
+    "jira": {
+      "command": "uvx",
+      "args": ["mcp-atlassian"],
+      "env": {
+        "JIRA_URL": "${JIRA_URL}",
+        "JIRA_USERNAME": "${JIRA_USERNAME}",
+        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.86",
+        "--browser", "chrome",
+        "--headless",
+        "--isolated",
+        "--output-dir", "agentic-workflows/playwright-output"
+      ]
+    }
+  }
+}
